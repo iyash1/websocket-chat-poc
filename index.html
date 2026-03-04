@@ -20,9 +20,18 @@
 
 <script>
   let socket;
+  let currentUser;
 
   function register() {
-    const username = document.getElementById("usernameInput").value;
+    const username = document.getElementById("usernameInput").value.trim();
+
+    if (!username) {
+      alert("Username cannot be empty");
+      return;
+    }
+
+    currentUser = username;
+
     socket = new WebSocket("ws://localhost:8765");
 
     socket.onopen = function() {
@@ -44,6 +53,9 @@
       } 
       else if (data.type === "system") {
         li.textContent = `[System] ${data.message}`;
+      } 
+      else if (data.type === "error") {
+        li.textContent = `[Error] ${data.message}`;
       }
 
       document.getElementById("messages").appendChild(li);
@@ -51,8 +63,10 @@
   }
 
   function sendMessage() {
-    const message = document.getElementById("messageInput").value;
-    const recipient = document.getElementById("recipientInput").value;
+    const message = document.getElementById("messageInput").value.trim();
+    const recipient = document.getElementById("recipientInput").value.trim();
+
+    if (!message) return;
 
     if (recipient) {
       socket.send(JSON.stringify({
