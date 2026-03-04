@@ -33,7 +33,7 @@ websocket-chat-poc/
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/iyash1/websocket-chat-poc.git
 cd websocket-chat-poc
 ```
 
