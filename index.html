@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Chat</title>
+</head>
+<body>
+
+<h2>Chat</h2>
+
+<input id="usernameInput" placeholder="Enter username" />
+<button onclick="register()">Join</button>
+
+<hr>
+
+<input id="messageInput" placeholder="Message..." />
+<input id="recipientInput" placeholder="Recipient (leave empty for broadcast)" />
+<button onclick="sendMessage()">Send</button>
+
+<ul id="messages"></ul>
+
+<script>
+  let socket;
+
+  function register() {
+    const username = document.getElementById("usernameInput").value;
+    socket = new WebSocket("ws://localhost:8765");
+
+    socket.onopen = function() {
+      socket.send(JSON.stringify({
+        type: "register",
+        username: username
+      }));
+    };
+
+    socket.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      const li = document.createElement("li");
+
+      if (data.type === "broadcast") {
+        li.textContent = `[Broadcast] ${data.from}: ${data.message}`;
+      } 
+      else if (data.type === "private") {
+        li.textContent = `[Private] ${data.from}: ${data.message}`;
+      } 
+      else if (data.type === "system") {
+        li.textContent = `[System] ${data.message}`;
+      }
+
+      document.getElementById("messages").appendChild(li);
+    };
+  }
+
+  function sendMessage() {
+    const message = document.getElementById("messageInput").value;
+    const recipient = document.getElementById("recipientInput").value;
+
+    if (recipient) {
+      socket.send(JSON.stringify({
+        type: "private",
+        to: recipient,
+        message: message
+      }));
+    } else {
+      socket.send(JSON.stringify({
+        type: "broadcast",
+        message: message
+      }));
+    }
+
+    document.getElementById("messageInput").value = "";
+  }
+</script>
+
+</body>
+</html>
