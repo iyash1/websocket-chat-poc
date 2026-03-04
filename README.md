@@ -1,7 +1,8 @@
 # 🗨️ WebSocket Chat POC
 
-This project demonstrates a simple real-time chat application using Python, WebSockets, and HTML/JS.  
-You can broadcast messages to all users or send private messages to specific users. 🚀
+This project demonstrates a simple real-time chat application using Python, WebSockets, PostgreSQL, and HTML/JS.  
+You can broadcast messages to all users or send private messages to specific users. 🚀  
+All chat history and users are persisted in a PostgreSQL database.
 
 ---
 
@@ -9,9 +10,10 @@ You can broadcast messages to all users or send private messages to specific use
 
 ```
 websocket-chat-poc/
-├── server.py           # Python WebSocket server
+├── server.py           # Python WebSocket server (with PostgreSQL integration)
 ├── index.html          # Simple chat client (HTML/JS)
 ├── requirements.txt    # Python dependencies
+├── .env                # Database connection settings
 └── README.md           # This documentation
 ```
 
@@ -21,6 +23,7 @@ websocket-chat-poc/
 
 - [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (recommended for environment management)
 - Python 3.8+
+- PostgreSQL server (local or remote)
 - A modern web browser
 
 ---
@@ -47,6 +50,37 @@ conda activate ws-chat-poc
 pip install -r requirements.txt
 ```
 
+### 4. Configure Database
+
+Edit the `.env` file with your PostgreSQL credentials:
+
+```env
+PG_USER="<YOUR_PG_USERNAME>"
+PG_PASSWORD="<YOUR_PG_PASSWORD>"
+PG_DATABASE="<YOUR_PG_DATABASE_NAME>"
+PG_HOST="<YOUR_PG_HOST_IP | localhost>"
+PG_PORT="5432"
+```
+
+### 5. Create Database Tables
+
+Run the following SQL in your PostgreSQL database:
+
+```sql
+CREATE TABLE IF NOT EXISTS ws_users (
+    username TEXT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS ws_messages (
+    id SERIAL PRIMARY KEY,
+    sender TEXT,
+    recipient TEXT,
+    message TEXT,
+    message_type TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
 ---
 
 ## 🚀 Running the Application
@@ -58,7 +92,7 @@ python server.py
 ```
 
 You should see:  
-`Server running at ws://localhost:8765`
+`🌏 Chat server running on ws://localhost:8765`
 
 ### 2. Open the Chat Client
 
@@ -78,6 +112,9 @@ Just open `index.html` in your browser (double-click or use `file://` path).
     - `[Broadcast]` - Sent to everyone  
     - `[Private]` - Sent only to the specified user  
     - `[System]` - Join/leave notifications
+- **Persistence:**  
+    - All users and messages are stored in PostgreSQL.
+    - New users receive recent chat history on join.
 
 ---
 
@@ -85,7 +122,10 @@ Just open `index.html` in your browser (double-click or use `file://` path).
 
 - `websockets`  
 - `asyncio`  
-- `json` (Python built-in)
+- `json`  
+- `colorama`  
+- `dotenv`  
+- `asyncpg`  
 
 All dependencies are listed in `requirements.txt`.
 
